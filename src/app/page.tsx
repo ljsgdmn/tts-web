@@ -72,6 +72,7 @@ export default function Home() {
   const [elevenlabsStyle, setElevenlabsStyle] = useState(0);
   const [useSpeakerBoost, setUseSpeakerBoost] = useState(true);
   const [previewingVoiceId, setPreviewingVoiceId] = useState<string | null>(null);
+  const [previewingMinimaxVoice, setPreviewingMinimaxVoice] = useState<string | null>(null);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -258,6 +259,61 @@ export default function Home() {
     } catch (err) {
       console.error('Failed to play preview:', err);
       setPreviewingVoiceId(null);
+    }
+  };
+
+  const playMinimaxVoicePreview = async (voiceId: string) => {
+    if (!minimaxApiKey) {
+      return;
+    }
+
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause();
+      previewAudioRef.current = null;
+    }
+
+    if (previewingMinimaxVoice === voiceId) {
+      setPreviewingMinimaxVoice(null);
+      return;
+    }
+
+    try {
+      setPreviewingMinimaxVoice(voiceId);
+      const res = await fetch('/api/tts/minimax', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: minimaxApiKey,
+          text: '你好，这是一个音色试听示例。',
+          model: 'speech-02-turbo',
+          voiceId: voiceId,
+          speed: 1,
+          vol: 1,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.audio) {
+        const audioBlob = new Blob(
+          [new Uint8Array(data.audio.match(/.{1,2}/g)?.map((byte: string) => parseInt(byte, 16)) || [])],
+          { type: 'audio/mp3' }
+        );
+        const url = URL.createObjectURL(audioBlob);
+        previewAudioRef.current = new Audio(url);
+        previewAudioRef.current.onended = () => {
+          setPreviewingMinimaxVoice(null);
+        };
+        previewAudioRef.current.onerror = () => {
+          setPreviewingMinimaxVoice(null);
+        };
+        await previewAudioRef.current.play();
+      } else {
+        setPreviewingMinimaxVoice(null);
+      }
+    } catch (err) {
+      console.error('Failed to play MiniMax preview:', err);
+      setPreviewingMinimaxVoice(null);
     }
   };
 
@@ -503,17 +559,43 @@ export default function Home() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Voice</label>
                     <div className="grid grid-cols-2 gap-2">
                       {MINIMAX_VOICES.map((voice) => (
-                        <button
+                        <div
                           key={voice.voice_id}
-                          onClick={() => setMinimaxVoice(voice.voice_id)}
-                          className={`px-3 py-2 text-sm rounded-lg border transition ${
+                          className={`flex items-center justify-between px-3 py-2 text-sm rounded-lg border transition ${
                             minimaxVoice === voice.voice_id
                               ? 'border-blue-500 bg-blue-50 text-blue-700'
                               : 'border-gray-300 hover:border-gray-400'
                           }`}
                         >
-                          {voice.name}
-                        </button>
+                          <span 
+                            className="cursor-pointer flex-1"
+                            onClick={() => setMinimaxVoice(voice.voice_id)}
+                          >
+                            {voice.name}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playMinimaxVoicePreview(voice.voice_id);
+                            }}
+                            disabled={!minimaxApiKey}
+                            className={`p-1 rounded ${
+                              previewingMinimaxVoice === voice.voice_id
+                                ? 'bg-blue-200'
+                                : 'hover:bg-gray-200'
+                            } ${!minimaxApiKey ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          >
+                            {previewingMinimaxVoice === voice.voice_id ? (
+                              <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                              </svg>
+                            ) : (
+                              <svg className="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
                       ))}
                     </div>
                   </div>
