@@ -49,6 +49,7 @@ export default function Home() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   
   const [minimaxApiKey, setMinimaxApiKey] = useState('');
   const [minimaxVoice, setMinimaxVoice] = useState('female-shaonv');
@@ -169,14 +170,20 @@ export default function Home() {
 
   const handlePlay = () => {
     if (audioRef.current) {
-      audioRef.current.play();
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        audioRef.current.play();
+        setIsPlaying(true);
+      }
     }
   };
 
   const handleStop = () => {
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
     }
   };
 
@@ -253,10 +260,10 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <main className="max-w-7xl mx-auto p-4 md:p-6 overflow-x-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+          <div className="lg:col-span-2 space-y-4 lg:space-y-6 order-1">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Text Input</h2>
               <textarea
                 value={text}
@@ -269,25 +276,34 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">Audio Player</h2>
                 {audioUrl && (
                   <div className="flex gap-2">
                     <button
                       onClick={handlePlay}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+                      className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
+                        isPlaying 
+                          ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' 
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
                     >
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-                      </svg>
-                      Play
-                    </button>
-                    <button
-                      onClick={handleStop}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
-                    >
-                      Stop
+                      {isPlaying ? (
+                        <>
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          Stop
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                          </svg>
+                          Play
+                        </>
+                      )}
                     </button>
                     <button
                       onClick={handleDownload}
@@ -307,9 +323,14 @@ export default function Home() {
                   <audio 
                     ref={audioRef} 
                     src={audioUrl} 
-                    onEnded={handleStop}
+                    onEnded={() => {
+                      handleStop();
+                      setCurrentTime(0);
+                    }}
                     onTimeUpdate={handleTimeUpdate}
                     onLoadedMetadata={handleLoadedMetadata}
+                    onPause={() => setIsPlaying(false)}
+                    onPlay={() => setIsPlaying(true)}
                   />
                   <div className="flex items-center gap-3">
                     <span className="text-sm text-gray-500 w-10">{formatTime(currentTime)}</span>
@@ -383,8 +404,8 @@ export default function Home() {
             </button>
           </div>
 
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="space-y-4 lg:space-y-6 order-2 lg:order-2">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">API Settings</h2>
               
               {provider === 'minimax' ? (
