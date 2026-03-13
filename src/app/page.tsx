@@ -16,21 +16,21 @@ interface ElevenLabsVoice {
 }
 
 const MINIMAX_VOICES: MinimaxVoice[] = [
-  { voice_id: 'female-shaonv', name: '活泼少女' },
-  { voice_id: 'female-yujie', name: '温柔御姐' },
+  { voice_id: 'female-shaonv', name: '少女' },
+  { voice_id: 'female-yujie', name: '御姐' },
   { voice_id: 'female-chengshu', name: '成熟女性' },
-  { voice_id: 'female-badao', name: '强势女总' },
-  { voice_id: 'female-shaibo', name: '播音少女' },
-  { voice_id: 'female-yujie_2', name: '优雅女性' },
+  { voice_id: 'female-tianmei', name: '甜美女性' },
   { voice_id: 'male-qn-qingse', name: '青涩青年' },
   { voice_id: 'male-qn-jingying', name: '精英青年' },
-  { voice_id: 'male-qn-badao', name: '霸道总裁' },
-  { voice_id: 'male-qn-zhiliao', name: '温柔正太' },
-  { voice_id: 'male-qn-xiaoyuan', name: '阳光少年' },
-  { voice_id: 'male-qn-daxiao', name: '搞笑男声' },
-  { voice_id: 'male-qin', name: '沉稳男声' },
-  { voice_id: 'audiobook_male_1', name: '有声书男' },
-  { voice_id: 'audiobook_female_1', name: '有声书女' },
+  { voice_id: 'male-qn-badao', name: '霸道青年' },
+  { voice_id: 'male-qn-daxuesheng', name: '青年大学生' },
+  { voice_id: 'clever_boy', name: '聪明男童' },
+  { voice_id: 'cute_boy', name: '可爱男童' },
+  { voice_id: 'lovely_girl', name: '萌萌女童' },
+  { voice_id: 'Chinese (Mandarin)_Male_Announcer', name: '播报男声' },
+  { voice_id: 'Chinese (Mandarin)_News_Anchor', name: '新闻女声' },
+  { voice_id: 'Chinese (Mandarin)_Gentleman', name: '温润男声' },
+  { voice_id: 'Chinese (Mandarin)_Sweet_Lady', name: '甜美女声' },
 ];
 
 const ELEVENLABS_DEFAULT_VOICES: ElevenLabsVoice[] = [
