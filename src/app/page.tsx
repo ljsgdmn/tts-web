@@ -48,11 +48,10 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   
   const [minimaxApiKey, setMinimaxApiKey] = useState('');
-  const [minimaxGroupId, setMinimaxGroupId] = useState('');
   const [minimaxVoice, setMinimaxVoice] = useState('male-qn-qingse');
   const [minimaxSpeed, setMinimaxSpeed] = useState(1.0);
-  const [minimaxPitch, setMinimaxPitch] = useState(0);
-  const [minimaxModel, setMinimaxModel] = useState('speech-2.8-turbo');
+  const [minimaxVol, setMinimaxVol] = useState(1.0);
+  const [minimaxModel, setMinimaxModel] = useState('speech-02-turbo');
   
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState('');
   const [elevenlabsVoice, setElevenlabsVoice] = useState('21m00Tcm4TlvDq8ikWAM');
@@ -96,8 +95,8 @@ export default function Home() {
     try {
       let res;
       if (provider === 'minimax') {
-        if (!minimaxApiKey || !minimaxGroupId) {
-          setError('Please enter MiniMax API Key and Group ID');
+        if (!minimaxApiKey) {
+          setError('Please enter MiniMax API Key');
           setIsGenerating(false);
           return;
         }
@@ -106,12 +105,11 @@ export default function Home() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             apiKey: minimaxApiKey,
-            groupId: minimaxGroupId,
             text,
             model: minimaxModel,
             voiceId: minimaxVoice,
             speed: minimaxSpeed,
-            pitch: minimaxPitch,
+            vol: minimaxVol,
           }),
         });
       } else {
@@ -307,24 +305,14 @@ export default function Home() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Group ID</label>
-                    <input
-                      type="text"
-                      value={minimaxGroupId}
-                      onChange={(e) => setMinimaxGroupId(e.target.value)}
-                      placeholder="Enter Group ID"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
                     <select
                       value={minimaxModel}
                       onChange={(e) => setMinimaxModel(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="speech-2.8-turbo">speech-2.8-turbo</option>
-                      <option value="speech-2.8-hd">speech-2.8-hd</option>
+                      <option value="speech-02-turbo">speech-02-turbo</option>
+                      <option value="speech-02-hd">speech-02-hd</option>
                       <option value="speech-2.6-turbo">speech-2.6-turbo</option>
                       <option value="speech-2.6-hd">speech-2.6-hd</option>
                     </select>
@@ -400,15 +388,15 @@ export default function Home() {
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Pitch: {minimaxPitch}
+                      Volume: {minimaxVol}
                     </label>
                     <input
                       type="range"
-                      min="-12"
-                      max="12"
-                      step="1"
-                      value={minimaxPitch}
-                      onChange={(e) => setMinimaxPitch(parseInt(e.target.value))}
+                      min="0.1"
+                      max="2.0"
+                      step="0.1"
+                      value={minimaxVol}
+                      onChange={(e) => setMinimaxVol(parseFloat(e.target.value))}
                       className="w-full"
                     />
                   </div>

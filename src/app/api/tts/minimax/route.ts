@@ -3,23 +3,22 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { apiKey, groupId, text, model, voiceId, speed, pitch, vol, language } = body;
+    const { apiKey, text, model, voiceId, speed, vol, language } = body;
 
-    if (!apiKey || !groupId || !text) {
+    if (!apiKey || !text) {
       return NextResponse.json(
-        { error: 'Missing required parameters: apiKey, groupId, text' },
+        { error: 'Missing required parameters: apiKey, text' },
         { status: 400 }
       );
     }
 
     const requestBody = {
-      model: model || 'speech-2.8-turbo',
+      model: model || 'speech-02-turbo',
       text: text,
-      voice_settings: {
+      voice_setting: {
         voice_id: voiceId || 'male-qn-qingse',
         speed: speed || 1.0,
-        pitch: pitch || 0,
-        vol: vol || 0,
+        vol: vol || 1.0,
       },
       audio_setting: {
         sample_rate: 32000,
@@ -30,7 +29,7 @@ export async function POST(req: NextRequest) {
     };
 
     const response = await fetch(
-      `https://api.minimax.io/v1/t2a_v2?GroupId=${groupId}`,
+      `https://api.minimax.chat/v1/t2a_v2`,
       {
         method: 'POST',
         headers: {
@@ -41,7 +40,7 @@ export async function POST(req: NextRequest) {
       }
     ).catch((err) => {
       console.error('Fetch error:', err);
-      throw new Error(`Network error: Unable to connect to MiniMax API. This may be a network/firewall issue in local development. Try deploying to Vercel.`);
+      throw new Error(`Network error: Unable to connect to MiniMax API`);
     });
 
     if (!response.ok) {
