@@ -46,6 +46,8 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   
   const [minimaxApiKey, setMinimaxApiKey] = useState('');
   const [minimaxVoice, setMinimaxVoice] = useState('female-shaonv');
@@ -176,6 +178,32 @@ export default function Home() {
     }
   };
 
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = parseFloat(e.target.value);
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
+  };
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
   const handleDownload = () => {
     if (!audioUrl) return;
     const a = document.createElement('a');
@@ -273,7 +301,28 @@ export default function Home() {
               </div>
               
               {audioUrl && (
-                <audio ref={audioRef} src={audioUrl} className="w-full" onEnded={handleStop} />
+                <div className="space-y-3">
+                  <audio 
+                    ref={audioRef} 
+                    src={audioUrl} 
+                    onEnded={handleStop}
+                    onTimeUpdate={handleTimeUpdate}
+                    onLoadedMetadata={handleLoadedMetadata}
+                  />
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-gray-500 w-10">{formatTime(currentTime)}</span>
+                    <input
+                      type="range"
+                      min="0"
+                      max={duration || 0}
+                      step="0.1"
+                      value={currentTime}
+                      onChange={handleSeek}
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                    />
+                    <span className="text-sm text-gray-500 w-10">{formatTime(duration)}</span>
+                  </div>
+                </div>
               )}
 
               {!audioUrl && !isGenerating && (
