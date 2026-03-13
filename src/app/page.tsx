@@ -71,8 +71,10 @@ export default function Home() {
   const [elevenlabsSimilarityBoost, setElevenlabsSimilarityBoost] = useState(0.75);
   const [elevenlabsStyle, setElevenlabsStyle] = useState(0);
   const [useSpeakerBoost, setUseSpeakerBoost] = useState(true);
+  const [previewingVoiceId, setPreviewingVoiceId] = useState<string | null>(null);
 
   const audioRef = useRef<HTMLAudioElement>(null);
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (elevenlabsApiKey.length >= 32) {
@@ -228,10 +230,41 @@ export default function Home() {
     document.body.removeChild(a);
   };
 
-  const playVoicePreview = (previewUrl: string) => {
-    if (audioRef.current) {
-      audioRef.current.src = previewUrl;
-      audioRef.current.play();
+  const playVoicePreview = async (voiceId: string) => {
+    if (!elevenlabsApiKey) {
+      return;
+    }
+
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause();
+      previewAudioRef.current = null;
+    }
+
+    if (previewingVoiceId === voiceId) {
+      setPreviewingVoiceId(null);
+      return;
+    }
+
+    try {
+      setPreviewingVoiceId(voiceId);
+      const res = await fetch(`/api/voices/elevenlabs/preview?apiKey=${elevenlabsApiKey}&voiceId=${voiceId}`);
+      const data = await res.json();
+
+      if (data.audio) {
+        const audioBlob = new Blob(
+          [Uint8Array.from(atob(data.audio), c => c.charCodeAt(0))],
+          { type: 'audio/mpeg' }
+        );
+        const url = URL.createObjectURL(audioBlob);
+        previewAudioRef.current = new Audio(url);
+        previewAudioRef.current.onended = () => {
+          setPreviewingVoiceId(null);
+        };
+        previewAudioRef.current.play();
+      }
+    } catch (err) {
+      console.error('Failed to play preview:', err);
+      setPreviewingVoiceId(null);
     }
   };
 
@@ -550,19 +583,28 @@ export default function Home() {
                           }`}
                         >
                           <span className="text-sm font-medium">{voice.name}</span>
-                          {voice.preview_url && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                playVoicePreview(voice.preview_url!);
-                              }}
-                              className="p-1 hover:bg-gray-200 rounded"
-                            >
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playVoicePreview(voice.voice_id);
+                            }}
+                            disabled={!elevenlabsApiKey}
+                            className={`p-1 rounded ${
+                              previewingVoiceId === voice.voice_id
+                                ? 'bg-blue-100'
+                                : 'hover:bg-gray-200'
+                            } ${!elevenlabsApiKey ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          >
+                            {previewingVoiceId === voice.voice_id ? (
+                              <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                              </svg>
+                            ) : (
                               <svg className="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
                               </svg>
-                            </button>
-                          )}
+                            )}
+                          </button>
                         </div>
                       ))}
                     </div>
