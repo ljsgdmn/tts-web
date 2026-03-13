@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     };
 
     const response = await fetch(
-      `https://api.minimax.chat/v1/t2a_v2`,
+      `https://api.minimaxi.com/v1/t2a_v2`,
       {
         method: 'POST',
         headers: {
