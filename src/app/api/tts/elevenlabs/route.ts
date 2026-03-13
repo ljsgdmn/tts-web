@@ -12,30 +12,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const requestBody: {
-      text: string;
-      model_id: string;
-      voice_settings: {
-        stability: number;
-        similarity_boost: number;
-        style?: number;
-        use_speaker_boost?: boolean;
-      };
-    } = {
+    const requestBody: Record<string, unknown> = {
       text: text,
-      model_id: model || 'eleven_multilingual_v2',
-      voice_settings: {
-        stability: stability ?? 0.5,
-        similarity_boost: similarityBoost ?? 0.75,
-      },
     };
 
-    if (style !== undefined) {
-      requestBody.voice_settings.style = style;
+    if (model) {
+      requestBody.model_id = model;
     }
 
-    if (useSpeakerBoost !== undefined) {
-      requestBody.voice_settings.use_speaker_boost = useSpeakerBoost;
+    if (stability !== undefined || similarityBoost !== undefined) {
+      requestBody.voice_settings = {};
+      if (stability !== undefined) {
+        (requestBody.voice_settings as Record<string, unknown>).stability = stability;
+      }
+      if (similarityBoost !== undefined) {
+        (requestBody.voice_settings as Record<string, unknown>).similarity_boost = similarityBoost;
+      }
+      if (style !== undefined) {
+        (requestBody.voice_settings as Record<string, unknown>).style = style;
+      }
+      if (useSpeakerBoost !== undefined) {
+        (requestBody.voice_settings as Record<string, unknown>).use_speaker_boost = useSpeakerBoost;
+      }
     }
 
     const response = await fetch(
@@ -50,7 +48,7 @@ export async function POST(req: NextRequest) {
       }
     ).catch((err) => {
       console.error('Fetch error:', err);
-      throw new Error(`Network error: Unable to connect to ElevenLabs API. This may be a network/firewall issue in local development. Try deploying to Vercel.`);
+      throw new Error(`Network error: Unable to connect to ElevenLabs API`);
     });
 
     if (!response.ok) {
