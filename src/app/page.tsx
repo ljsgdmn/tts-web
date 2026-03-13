@@ -46,7 +46,7 @@ const ELEVENLABS_DEFAULT_VOICES: ElevenLabsVoice[] = [
 ];
 
 export default function Home() {
-  const [provider, setProvider] = useState<Provider>('elevenlabs');
+  const [provider, setProvider] = useState<Provider>('minimax');
   const [text, setText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -61,7 +61,7 @@ export default function Home() {
   const [minimaxCustomVoiceId, setMinimaxCustomVoiceId] = useState('');
   const [minimaxSpeed, setMinimaxSpeed] = useState(1.0);
   const [minimaxVol, setMinimaxVol] = useState(1.0);
-  const [minimaxModel, setMinimaxModel] = useState('speech-01-turbo');
+  const [minimaxModel, setMinimaxModel] = useState('speech-2.8-turbo');
   
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState('');
   const [elevenlabsVoice, setElevenlabsVoice] = useState('21m00Tcm4TlvDq8ikWAM');
@@ -74,9 +74,34 @@ export default function Home() {
   const [previewingVoiceId, setPreviewingVoiceId] = useState<string | null>(null);
   const [previewingMinimaxVoice, setPreviewingMinimaxVoice] = useState<string | null>(null);
   const [loadingMinimaxPreview, setLoadingMinimaxPreview] = useState<string | null>(null);
+  const [voiceSearchQuery, setVoiceSearchQuery] = useState('');
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const savedMinimaxKey = localStorage.getItem('minimaxApiKey');
+    const savedElevenlabsKey = localStorage.getItem('elevenlabsApiKey');
+    const savedProvider = localStorage.getItem('provider') as Provider | null;
+    
+    if (savedMinimaxKey) setMinimaxApiKey(savedMinimaxKey);
+    if (savedElevenlabsKey) setElevenlabsApiKey(savedElevenlabsKey);
+    if (savedProvider && (savedProvider === 'minimax' || savedProvider === 'elevenlabs')) {
+      setProvider(savedProvider);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('minimaxApiKey', minimaxApiKey);
+  }, [minimaxApiKey]);
+
+  useEffect(() => {
+    localStorage.setItem('elevenlabsApiKey', elevenlabsApiKey);
+  }, [elevenlabsApiKey]);
+
+  useEffect(() => {
+    localStorage.setItem('provider', provider);
+  }, [provider]);
 
   useEffect(() => {
     if (elevenlabsApiKey.length >= 32) {
@@ -98,7 +123,7 @@ export default function Home() {
 
   const handleGenerate = async () => {
     if (!text.trim()) {
-      setError('Please enter text to synthesize');
+      setError('请输入要合成的文本');
       return;
     }
 
@@ -110,7 +135,7 @@ export default function Home() {
       let res;
       if (provider === 'minimax') {
         if (!minimaxApiKey) {
-          setError('Please enter MiniMax API Key');
+          setError('请输入 MiniMax API Key');
           setIsGenerating(false);
           return;
         }
@@ -128,7 +153,7 @@ export default function Home() {
         });
       } else {
         if (!elevenlabsApiKey) {
-          setError('Please enter ElevenLabs API Key');
+          setError('请输入 ElevenLabs API Key');
           setIsGenerating(false);
           return;
         }
@@ -151,7 +176,15 @@ export default function Home() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Generation failed');
+        let errorMessage = data.error || '生成失败';
+        if (res.status === 401 || errorMessage.includes('401') || errorMessage.includes('unauthorized') || errorMessage.includes('login fail')) {
+          errorMessage = 'API Key 无效，请检查后重试';
+        } else if (res.status === 429) {
+          errorMessage = '请求过于频繁，请稍后重试';
+        } else if (res.status === 422) {
+          errorMessage = '请求参数错误，请检查输入';
+        }
+        setError(errorMessage);
         return;
       }
 
@@ -661,8 +694,25 @@ export default function Home() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Voice</label>
+                    <input
+                      type="text"
+                      placeholder="搜索声音..."
+                      value={voiceSearchQuery}
+                      onChange={(e) => setVoiceSearchQuery(e.target.value)}
+                      className="w-full px-3 py-2 mb-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    />
                     <div className="max-h-48 overflow-y-auto space-y-2">
-                      {elevenlabsVoices.map((voice) => (
+                      {elevenlabsVoices
+                        .filter((voice) => {
+                          if (!voiceSearchQuery.trim()) return true;
+                          const query = voiceSearchQuery.toLowerCase();
+                          return (
+                            (voice.name && voice.name.toLowerCase().includes(query)) ||
+                            voice.voice_id.toLowerCase().includes(query)
+                          );
+                        })
+                        .filter((voice) => voice.name && voice.name.trim() !== '')
+                        .map((voice) => (
                         <div
                           key={voice.voice_id}
                           onClick={() => setElevenlabsVoice(voice.voice_id)}
