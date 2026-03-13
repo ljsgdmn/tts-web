@@ -34,15 +34,15 @@ const MINIMAX_VOICES: MinimaxVoice[] = [
 ];
 
 const ELEVENLABS_DEFAULT_VOICES: ElevenLabsVoice[] = [
-  { voice_id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel', preview_url: 'https://elevenlabs.io/a/21m00Tcm4TlvDq8ikWAM' },
-  { voice_id: 'AZnzlk1XvdvUeBnqx9VO', name: 'Domi', preview_url: 'https://elevenlabs.io/a/AZnzlk1XvdvUeBnqx9VO' },
-  { voice_id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah', preview_url: 'https://elevenlabs.io/a/EXAVITQu4vr4xnSDxMaL' },
-  { voice_id: 'ErXwobaYiN019PkySvjV', name: 'Antoni', preview_url: 'https://elevenlabs.io/a/ErXwobaYiN019PkySvjV' },
-  { voice_id: 'MF3mGyEYCl7XYWbV9V6O', name: 'Elli', preview_url: 'https://elevenlabs.io/a/MF3mGyEYCl7XYWbV9V6O' },
-  { voice_id: 'TxGEqnHWrfWFTfGW9XjX', name: 'Josh', preview_url: 'https://elevenlabs.io/a/TxGEqnHWrfWFTfGW9XjX' },
-  { voice_id: 'VR6AewLTigWGxfGxSNwa', name: 'Arnold', preview_url: 'https://elevenlabs.io/a/VR6AewLTigWGxfGxSNwa' },
-  { voice_id: 'pNInz6obpgDQGcFmaJgB', name: 'Adam', preview_url: 'https://elevenlabs.io/a/pNInz6obpgDQGcFmaJgB' },
-  { voice_id: 'yoZ06aMxZJJ28mfd3POQ', name: 'Sam', preview_url: 'https://elevenlabs.io/a/yoZ06aMxZJJ28mfd3POQ' },
+  { voice_id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel' },
+  { voice_id: 'AZnzlk1XvdvUeBnqx9VO', name: 'Domi' },
+  { voice_id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah' },
+  { voice_id: 'ErXwobaYiN019PkySvjV', name: 'Antoni' },
+  { voice_id: 'MF3mGyEYCl7XYWbV9V6O', name: 'Elli' },
+  { voice_id: 'TxGEqnHWrfWFTfGW9XjX', name: 'Josh' },
+  { voice_id: 'VR6AewLTigWGxfGxSNwa', name: 'Arnold' },
+  { voice_id: 'pNInz6obpgDQGcFmaJgB', name: 'Adam' },
+  { voice_id: 'yoZ06aMxZJJ28mfd3POQ', name: 'Sam' },
 ];
 
 export default function Home() {
@@ -230,11 +230,7 @@ export default function Home() {
     document.body.removeChild(a);
   };
 
-  const playVoicePreview = async (voiceId: string) => {
-    if (!elevenlabsApiKey) {
-      return;
-    }
-
+  const playVoicePreview = async (voiceId: string, previewUrl?: string) => {
     if (previewAudioRef.current) {
       previewAudioRef.current.pause();
       previewAudioRef.current = null;
@@ -245,23 +241,20 @@ export default function Home() {
       return;
     }
 
+    if (!previewUrl) {
+      return;
+    }
+
     try {
       setPreviewingVoiceId(voiceId);
-      const res = await fetch(`/api/voices/elevenlabs/preview?apiKey=${elevenlabsApiKey}&voiceId=${voiceId}`);
-      const data = await res.json();
-
-      if (data.audio) {
-        const audioBlob = new Blob(
-          [Uint8Array.from(atob(data.audio), c => c.charCodeAt(0))],
-          { type: 'audio/mpeg' }
-        );
-        const url = URL.createObjectURL(audioBlob);
-        previewAudioRef.current = new Audio(url);
-        previewAudioRef.current.onended = () => {
-          setPreviewingVoiceId(null);
-        };
-        previewAudioRef.current.play();
-      }
+      previewAudioRef.current = new Audio(previewUrl);
+      previewAudioRef.current.onended = () => {
+        setPreviewingVoiceId(null);
+      };
+      previewAudioRef.current.onerror = () => {
+        setPreviewingVoiceId(null);
+      };
+      await previewAudioRef.current.play();
     } catch (err) {
       console.error('Failed to play preview:', err);
       setPreviewingVoiceId(null);
@@ -586,14 +579,13 @@ export default function Home() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              playVoicePreview(voice.voice_id);
+                              playVoicePreview(voice.voice_id, voice.preview_url);
                             }}
-                            disabled={!elevenlabsApiKey}
                             className={`p-1 rounded ${
                               previewingVoiceId === voice.voice_id
                                 ? 'bg-blue-100'
                                 : 'hover:bg-gray-200'
-                            } ${!elevenlabsApiKey ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            } ${!voice.preview_url ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
                             {previewingVoiceId === voice.voice_id ? (
                               <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
