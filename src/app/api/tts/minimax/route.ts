@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { apiKey, text, model, voiceId, speed, vol, language } = body;
+    const { apiKey, groupId, text, model, voiceId, speed, vol, language } = body;
 
     if (!apiKey || !text) {
       return NextResponse.json(
@@ -13,32 +13,36 @@ export async function POST(req: NextRequest) {
     }
 
     const requestBody = {
-      model: model || 'speech-01-turbo',
+      model: model || 'speech-2.6-hd',
       text: text,
       voice_setting: {
-        voice_id: voiceId || 'female-shaonv',
-        speed: speed || 1.0,
-        vol: vol || 1.0,
+        voice_id: voiceId || '',
+        speed: speed || 1,
+        pitch: 0,
+        vol: vol || 1,
+        latex_read: false,
       },
       audio_setting: {
         sample_rate: 32000,
         bitrate: 128000,
         format: 'mp3',
       },
-      language: language || 'Chinese',
+      language_boost: language || 'auto',
     };
 
-    const response = await fetch(
-      `https://api.minimaxi.com/v1/t2a_v2`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      }
-    ).catch((err) => {
+    let url = 'https://api.minimax.chat/v1/t2a_v2';
+    if (groupId) {
+      url += `?GroupId=${groupId}`;
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    }).catch((err) => {
       console.error('Fetch error:', err);
       throw new Error(`Network error: Unable to connect to MiniMax API`);
     });
