@@ -21,11 +21,16 @@ const MINIMAX_VOICES: MinimaxVoice[] = [
   { voice_id: 'female-chengshu', name: '成熟女性' },
   { voice_id: 'female-badao', name: '强势女总' },
   { voice_id: 'female-shaibo', name: '播音少女' },
+  { voice_id: 'female-yujie_2', name: '优雅女性' },
   { voice_id: 'male-qn-qingse', name: '青涩青年' },
   { voice_id: 'male-qn-jingying', name: '精英青年' },
   { voice_id: 'male-qn-badao', name: '霸道总裁' },
   { voice_id: 'male-qn-zhiliao', name: '温柔正太' },
   { voice_id: 'male-qn-xiaoyuan', name: '阳光少年' },
+  { voice_id: 'male-qn-daxiao', name: '搞笑男声' },
+  { voice_id: 'male-qin', name: '沉稳男声' },
+  { voice_id: 'audiobook_male_1', name: '有声书男' },
+  { voice_id: 'audiobook_female_1', name: '有声书女' },
 ];
 
 const ELEVENLABS_DEFAULT_VOICES: ElevenLabsVoice[] = [
@@ -496,6 +501,7 @@ export default function Home() {
                       placeholder="Enter custom voice ID"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
+                    <p className="text-xs text-gray-500 mt-1">可在 MiniMax 开放平台获取更多音色ID</p>
                   </div>
                   
                   <div>
