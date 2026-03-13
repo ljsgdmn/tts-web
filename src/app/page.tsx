@@ -51,6 +51,7 @@ export default function Home() {
   
   const [minimaxApiKey, setMinimaxApiKey] = useState('');
   const [minimaxVoice, setMinimaxVoice] = useState('female-shaonv');
+  const [minimaxCustomVoiceId, setMinimaxCustomVoiceId] = useState('');
   const [minimaxSpeed, setMinimaxSpeed] = useState(1.0);
   const [minimaxVol, setMinimaxVol] = useState(1.0);
   const [minimaxModel, setMinimaxModel] = useState('speech-01-turbo');
@@ -109,7 +110,7 @@ export default function Home() {
             apiKey: minimaxApiKey,
             text,
             model: minimaxModel,
-            voiceId: minimaxVoice,
+            voiceId: minimaxCustomVoiceId || minimaxVoice,
             speed: minimaxSpeed,
             vol: minimaxVol,
           }),
@@ -325,10 +326,14 @@ export default function Home() {
                         }}
                       >
                         <div 
-                          className="h-full bg-blue-600 rounded-full"
+                          className="h-full bg-blue-600 rounded-full relative"
                           style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
                         />
                       </div>
+                      <div 
+                        className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-blue-600 rounded-full shadow-md pointer-events-none"
+                        style={{ left: `${duration ? (currentTime / duration) * 100 : 0}%`, transform: 'translate(-50%, -50%)' }}
+                      />
                     </div>
                     <span className="text-sm text-gray-500 w-10">{formatTime(duration)}</span>
                   </div>
@@ -447,6 +452,17 @@ export default function Home() {
                         </button>
                       ))}
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Custom Voice ID (Optional)</label>
+                    <input
+                      type="text"
+                      value={minimaxCustomVoiceId}
+                      onChange={(e) => setMinimaxCustomVoiceId(e.target.value)}
+                      placeholder="Enter custom voice ID"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
                   </div>
                   
                   <div>
