@@ -16,16 +16,16 @@ interface ElevenLabsVoice {
 }
 
 const MINIMAX_VOICES: MinimaxVoice[] = [
-  { voice_id: 'male-qn-qingse', name: '青涩青年' },
-  { voice_id: 'male-qn-jingying', name: '精英青年' },
-  { voice_id: 'male-qn-badao', name: '霸道总裁' },
-  { voice_id: 'male-qn-zhiliao', name: '温柔正太' },
-  { voice_id: 'male-qn-xiaoyuan', name: '阳光少年' },
   { voice_id: 'female-shaonv', name: '活泼少女' },
   { voice_id: 'female-yujie', name: '温柔御姐' },
   { voice_id: 'female-chengshu', name: '成熟女性' },
   { voice_id: 'female-badao', name: '强势女总' },
   { voice_id: 'female-shaibo', name: '播音少女' },
+  { voice_id: 'male-qn-qingse', name: '青涩青年' },
+  { voice_id: 'male-qn-jingying', name: '精英青年' },
+  { voice_id: 'male-qn-badao', name: '霸道总裁' },
+  { voice_id: 'male-qn-zhiliao', name: '温柔正太' },
+  { voice_id: 'male-qn-xiaoyuan', name: '阳光少年' },
 ];
 
 const ELEVENLABS_DEFAULT_VOICES: ElevenLabsVoice[] = [
@@ -48,10 +48,10 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   
   const [minimaxApiKey, setMinimaxApiKey] = useState('');
-  const [minimaxVoice, setMinimaxVoice] = useState('male-qn-qingse');
+  const [minimaxVoice, setMinimaxVoice] = useState('female-shaonv');
   const [minimaxSpeed, setMinimaxSpeed] = useState(1.0);
   const [minimaxVol, setMinimaxVol] = useState(1.0);
-  const [minimaxModel, setMinimaxModel] = useState('speech-02-turbo');
+  const [minimaxModel, setMinimaxModel] = useState('speech-01-turbo');
   
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState('');
   const [elevenlabsVoice, setElevenlabsVoice] = useState('21m00Tcm4TlvDq8ikWAM');

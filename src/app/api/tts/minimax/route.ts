@@ -13,10 +13,10 @@ export async function POST(req: NextRequest) {
     }
 
     const requestBody = {
-      model: model || 'speech-02-turbo',
+      model: model || 'speech-01-turbo',
       text: text,
       voice_setting: {
-        voice_id: voiceId || 'male-qn-qingse',
+        voice_id: voiceId || 'female-shaonv',
         speed: speed || 1.0,
         vol: vol || 1.0,
       },
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
         bitrate: 128000,
         format: 'mp3',
       },
-      language: language || 'auto',
+      language: language || 'Chinese',
     };
 
     const response = await fetch(
