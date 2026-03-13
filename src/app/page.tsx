@@ -518,10 +518,12 @@ export default function Home() {
                       onChange={(e) => setMinimaxModel(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="speech-02-turbo">speech-02-turbo</option>
-                      <option value="speech-02-hd">speech-02-hd</option>
-                      <option value="speech-2.6-turbo">speech-2.6-turbo</option>
+                      <option value="speech-2.8-hd">speech-2.8-hd (最新HD)</option>
+                      <option value="speech-2.8-turbo">speech-2.8-turbo (最新Turbo)</option>
                       <option value="speech-2.6-hd">speech-2.6-hd</option>
+                      <option value="speech-2.6-turbo">speech-2.6-turbo</option>
+                      <option value="speech-02-hd">speech-02-hd</option>
+                      <option value="speech-02-turbo">speech-02-turbo</option>
                     </select>
                   </div>
                 </div>
@@ -544,10 +546,14 @@ export default function Home() {
                       onChange={(e) => setElevenlabsModel(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
+                      <option value="eleven_v3">eleven_v3 (最新Alpha)</option>
                       <option value="eleven_multilingual_v2">eleven_multilingual_v2</option>
+                      <option value="eleven_turbo_v2_5">eleven_turbo_v2_5</option>
+                      <option value="eleven_flash_v2_5">eleven_flash_v2_5 (低延迟)</option>
+                      <option value="eleven_flash_v2">eleven_flash_v2 (低延迟)</option>
+                      <option value="eleven_turbo_v2">eleven_turbo_v2</option>
+                      <option value="eleven_multilingual_v1">eleven_multilingual_v1</option>
                       <option value="eleven_monolingual_v1">eleven_monolingual_v1</option>
-                      <option value="eleven_flash_v2_5">eleven_flash_v2_5</option>
-                      <option value="eleven_flash_v2">eleven_flash_v2</option>
                     </select>
                   </div>
                 </div>
