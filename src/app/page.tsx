@@ -311,15 +311,25 @@ export default function Home() {
                   />
                   <div className="flex items-center gap-3">
                     <span className="text-sm text-gray-500 w-10">{formatTime(currentTime)}</span>
-                    <input
-                      type="range"
-                      min="0"
-                      max={duration || 0}
-                      step="0.1"
-                      value={currentTime}
-                      onChange={handleSeek}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                    />
+                    <div className="flex-1 relative">
+                      <div 
+                        className="h-2 bg-gray-200 rounded-full cursor-pointer overflow-hidden"
+                        onClick={(e) => {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const percent = (e.clientX - rect.left) / rect.width;
+                          const newTime = percent * duration;
+                          if (audioRef.current) {
+                            audioRef.current.currentTime = newTime;
+                            setCurrentTime(newTime);
+                          }
+                        }}
+                      >
+                        <div 
+                          className="h-full bg-blue-600 rounded-full"
+                          style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                        />
+                      </div>
+                    </div>
                     <span className="text-sm text-gray-500 w-10">{formatTime(duration)}</span>
                   </div>
                 </div>
