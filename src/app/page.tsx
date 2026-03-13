@@ -62,6 +62,7 @@ export default function Home() {
   const [minimaxSpeed, setMinimaxSpeed] = useState(1.0);
   const [minimaxVol, setMinimaxVol] = useState(1.0);
   const [minimaxModel, setMinimaxModel] = useState('speech-2.8-turbo');
+  const [minimaxAudioUrl, setMinimaxAudioUrl] = useState<string | null>(null);
   
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState('');
   const [elevenlabsVoice, setElevenlabsVoice] = useState('21m00Tcm4TlvDq8ikWAM');
@@ -71,6 +72,7 @@ export default function Home() {
   const [elevenlabsSimilarityBoost, setElevenlabsSimilarityBoost] = useState(0.75);
   const [elevenlabsStyle, setElevenlabsStyle] = useState(0);
   const [useSpeakerBoost, setUseSpeakerBoost] = useState(true);
+  const [elevenlabsAudioUrl, setElevenlabsAudioUrl] = useState<string | null>(null);
   const [previewingVoiceId, setPreviewingVoiceId] = useState<string | null>(null);
   const [previewingMinimaxVoice, setPreviewingMinimaxVoice] = useState<string | null>(null);
   const [loadingMinimaxPreview, setLoadingMinimaxPreview] = useState<string | null>(null);
@@ -101,15 +103,16 @@ export default function Home() {
 
   useEffect(() => {
     localStorage.setItem('provider', provider);
-    setAudioUrl(null);
-    setError(null);
-    setCurrentTime(0);
-    setDuration(0);
-    setIsPlaying(false);
+    
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.src = '';
     }
+    
+    const savedAudioUrl = provider === 'minimax' ? minimaxAudioUrl : elevenlabsAudioUrl;
+    setAudioUrl(savedAudioUrl);
+    setCurrentTime(0);
+    setIsPlaying(false);
+    setError(null);
   }, [provider]);
 
   useEffect(() => {
@@ -138,6 +141,12 @@ export default function Home() {
 
     setIsGenerating(true);
     setError(null);
+
+    if (provider === 'minimax') {
+      setMinimaxAudioUrl(null);
+    } else {
+      setElevenlabsAudioUrl(null);
+    }
     setAudioUrl(null);
 
     try {
@@ -204,6 +213,7 @@ export default function Home() {
         );
         const url = URL.createObjectURL(audioBlob);
         setAudioUrl(url);
+        setMinimaxAudioUrl(url);
       } else if (provider === 'elevenlabs' && data.audio) {
         const audioBlob = new Blob(
           [Uint8Array.from(atob(data.audio), c => c.charCodeAt(0))],
@@ -211,6 +221,7 @@ export default function Home() {
         );
         const url = URL.createObjectURL(audioBlob);
         setAudioUrl(url);
+        setElevenlabsAudioUrl(url);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
