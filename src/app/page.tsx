@@ -101,6 +101,15 @@ export default function Home() {
 
   useEffect(() => {
     localStorage.setItem('provider', provider);
+    setAudioUrl(null);
+    setError(null);
+    setCurrentTime(0);
+    setDuration(0);
+    setIsPlaying(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    }
   }, [provider]);
 
   useEffect(() => {
